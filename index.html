@@ -1,6 +1,65 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#090d18"><title>Ashika Live TV</title><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script></head>
-<body><div class="app-shell"><header class="topbar"><div class="brand"><div class="brand-mark">A</div><div><strong>ASHIKA <span>LIVE TV</span></strong><small>YOUR WORLD. YOUR CHANNELS.</small></div></div><div class="top-actions"><span id="clock"></span><button id="open-playlist" class="outline">＋ Add playlist</button></div></header>
-<main class="layout"><section class="watch-area"><div class="player-wrap"><video id="player" controls autoplay playsinline></video><div id="player-placeholder" class="player-placeholder"><div class="play-symbol">▶</div><h2>Welcome to Ashika Live TV</h2><p>Select a channel to start watching</p></div><div class="player-badge">LIVE PLAYER</div></div><div class="now-playing"><div><small>NOW PLAYING</small><h1 id="current-title">No channel selected</h1><p id="current-group">Choose a channel from the list</p></div><button id="stop-btn" class="outline">■ Stop</button></div><div class="quick-info"><span>● HLS / MPEG-DASH compatible streams</span><span id="channel-count">0 CHANNELS</span></div></section>
-<aside class="sidebar"><div class="sidebar-head"><div><h2>Channels</h2><p id="list-subtitle">Your playlist</p></div><button id="refresh-btn" class="icon-btn" title="Refresh">↻</button></div><input id="search" class="search" type="search" placeholder="⌕  Search channels..."><div id="groups" class="groups"></div><div id="channel-list" class="channel-list"><div class="empty">No channels yet.<br>Load an M3U playlist to begin.</div></div><div class="sidebar-footer"><button id="load-demo" class="text-btn">Load sample playlist</button><button id="manage-btn" class="text-btn">Playlist settings</button></div></aside></main><footer>ASHIKA LIVE TV <span>VERSION 2.0.0</span><span class="footer-right">Made for webOS TV</span></footer></div>
-<dialog id="playlist-dialog"><div class="dialog-head"><div><small>SETUP</small><h2>Add your playlist</h2></div><button class="close-btn" data-close>✕</button></div><p class="hint">Paste an M3U/M3U8 playlist URL or choose a local .m3u file. Some remote playlists require CORS access from their server.</p><label for="playlist-url">Playlist URL</label><input id="playlist-url" class="field" type="url" placeholder="https://example.com/playlist.m3u"><div class="or">OR</div><label for="playlist-file" class="file-label">Choose M3U file<input id="playlist-file" type="file" accept=".m3u,.m3u8,audio/x-mpegurl,application/vnd.apple.mpegurl"></label><div id="dialog-error" class="error"></div><div class="dialog-actions"><button class="outline" data-close>Cancel</button><button id="import-btn" class="primary">Load playlist</button></div></dialog><script src="app.js"></script></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080d18"><title>Ashika Live TV</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dashjs@4.7.4/dist/dash.all.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+<header class="topbar">
+ <div class="brand"><div class="brand-mark">A</div><div><strong>ASHIKA <span>LIVE TV</span></strong><small>YOUR WORLD. YOUR CHANNELS.</small></div></div>
+ <div class="top-actions"><span id="clock"></span><button id="guide-btn" class="outline">▤ TV Guide</button><button id="open-playlist" class="primary">＋ Add playlist</button><button id="settings-btn" class="outline">⚙ Settings</button></div>
+</header>
+<main class="layout">
+ <section class="watch-area">
+  <div class="player-wrap"><video id="player" controls autoplay playsinline></video><div id="player-placeholder" class="player-placeholder"><div class="play-symbol">▶</div><h2>Welcome to Ashika Live TV</h2><p>Select a channel to start watching</p></div><div class="player-badge">LIVE PLAYER</div><div id="playback-status" class="playback-status"></div></div>
+  <div class="now-playing"><div><small>NOW PLAYING</small><h1 id="current-title">No channel selected</h1><p id="current-group">Choose a channel from the list</p><p id="current-program" class="program-line"></p></div><div class="player-actions"><button id="fav-current" class="outline" title="Add to favourites">☆ Favourite</button><button id="stop-btn" class="outline">■ Stop</button></div></div>
+  <div class="quick-info"><span>● HLS / DASH / Native stream playback</span><span id="channel-count">0 CHANNELS</span></div>
+ </section>
+ <aside class="sidebar">
+  <div class="sidebar-head"><div><h2>Channels</h2><p id="list-subtitle">Your playlist</p></div><button id="refresh-btn" class="icon-btn" title="Refresh playlist">↻</button></div>
+  <div class="filter-row"><button class="filter-chip active" data-filter="all">All</button><button class="filter-chip" data-filter="fav">★ Favourites</button></div>
+  <input id="search" class="search" type="search" placeholder="⌕  Search channels...">
+  <div id="groups" class="groups"></div>
+  <div id="channel-list" class="channel-list"><div class="empty">No channels yet.<br>Add an M3U playlist to begin.</div></div>
+  <div class="sidebar-footer"><button id="load-demo" class="text-btn">Load sample</button><button id="manage-btn" class="text-btn">Manage playlists</button></div>
+ </aside>
+</main>
+<footer>ASHIKA LIVE TV <span>VERSION 3.0.0</span><span id="footer-playlist" class="footer-playlist">No playlist selected</span><span class="footer-right">Made for LG webOS TV</span></footer>
+</div>
+
+<dialog id="playlist-dialog">
+ <div class="dialog-head"><div><small>PLAYLIST LIBRARY</small><h2>Add a playlist</h2></div><button class="close-btn" data-close="playlist-dialog">✕</button></div>
+ <p class="hint">Add multiple M3U/M3U8 playlists. Playlists are saved on this TV. Remote URLs must allow CORS requests.</p>
+ <label for="playlist-name">Playlist name</label><input id="playlist-name" class="field" type="text" placeholder="My TV">
+ <label for="playlist-url">Playlist URL</label><input id="playlist-url" class="field" type="url" placeholder="https://example.com/playlist.m3u">
+ <div class="or">OR IMPORT A LOCAL FILE</div><label for="playlist-file" class="file-label">Choose M3U file<input id="playlist-file" type="file" accept=".m3u,.m3u8,audio/x-mpegurl,application/vnd.apple.mpegurl"></label>
+ <div id="playlist-error" class="error"></div><div class="dialog-actions"><button class="outline" data-close="playlist-dialog">Cancel</button><button id="import-btn" class="primary">Save playlist</button></div>
+</dialog>
+
+<dialog id="manage-dialog">
+ <div class="dialog-head"><div><small>YOUR LIBRARY</small><h2>Manage playlists</h2></div><button class="close-btn" data-close="manage-dialog">✕</button></div>
+ <div id="playlist-manager" class="playlist-manager"></div>
+ <div class="dialog-actions"><button class="outline" data-close="manage-dialog">Close</button><button id="manager-add" class="primary">＋ Add playlist</button></div>
+</dialog>
+
+<dialog id="settings-dialog">
+ <div class="dialog-head"><div><small>PERSONALIZE</small><h2>Settings</h2></div><button class="close-btn" data-close="settings-dialog">✕</button></div>
+ <label for="refresh-interval">Auto refresh playlists</label><select id="refresh-interval" class="field"><option value="0">Off</option><option value="15">Every 15 minutes</option><option value="30">Every 30 minutes</option><option value="60">Every hour</option><option value="180">Every 3 hours</option></select>
+ <label for="epg-url">TV Guide / XMLTV URL (optional)</label><input id="epg-url" class="field" type="url" placeholder="https://example.com/epg.xml">
+ <p class="hint">The guide reads XMLTV programme data. EPG channel IDs should match the playlist tvg-id values. URL access depends on the provider's CORS policy.</p>
+ <label class="check-label"><input id="autoplay-next" type="checkbox"> Automatically play next channel if a stream fails</label>
+ <div id="settings-message" class="error"></div>
+ <div class="dialog-actions"><button class="outline" data-close="settings-dialog">Cancel</button><button id="save-settings" class="primary">Save settings</button></div>
+</dialog>
+
+<dialog id="guide-dialog">
+ <div class="dialog-head"><div><small>PROGRAMME SCHEDULE</small><h2>TV Guide</h2></div><button class="close-btn" data-close="guide-dialog">✕</button></div>
+ <div class="guide-toolbar"><span id="guide-date">Today</span><button id="load-guide" class="outline">↻ Refresh guide</button></div>
+ <div id="guide-list" class="guide-list"><div class="empty">Set an XMLTV URL in Settings to load programme listings.</div></div>
+</dialog>
+<script src="app.js"></script>
+</body></html>
