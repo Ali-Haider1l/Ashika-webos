@@ -13,32 +13,73 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y binutils python3
+          sudo apt-get install -y python3
       - name: Check source syntax
         run: |
           node --check app.js
           bash -n scripts/build-ipk.sh
           python3 -m json.tool appinfo.json >/dev/null
-      - name: Build optimized webOS IPK
+      - name: Build webOS-compatible IPK
         run: |
           chmod +x scripts/build-ipk.sh
           ./scripts/build-ipk.sh
-      - name: Validate IPK structure, contents and size
+      - name: Validate webOS IPK archive and metadata
         run: |
           set -euo pipefail
-          PKG="$(find dist -name '*.ipk' -type f | head -n 1)"
+          PKG="$(find dist -maxdepth 1 -name '*.ipk' -type f | head -n 1)"
           test -n "$PKG"
-          ar t "$PKG" | grep -qx 'debian-binary'
-          ar t "$PKG" | grep -qx 'control.tar.gz'
-          ar t "$PKG" | grep -qx 'data.tar.gz'
-          TMP="$(mktemp -d)"
-          trap 'rm -rf "$TMP"' EXIT
-          (cd "$TMP" && ar x "$GITHUB_WORKSPACE/$PKG")
-          tar -tzf "$TMP/data.tar.gz" | grep -q '/app.js$'
-          tar -tzf "$TMP/data.tar.gz" | grep -q '/index.html$'
-          tar -tzf "$TMP/data.tar.gz" | grep -q '/style.css$'
+          python3 - "$PKG" <<'PY'
+          import gzip, io, json, os, sys, tarfile
+          path = sys.argv[1]
+          with open(path, "rb") as f:
+              blob = f.read()
+          if not blob.startswith(b"!<arch>\\n"):
+              raise SystemExit("Invalid ar magic")
+          pos = 8
+          members = {}
+          while pos < len(blob):
+              header = blob[pos:pos+60]
+              if len(header) != 60 or header[58:60] != b"`\\n":
+                  raise SystemExit("Invalid ar member header")
+              name = header[:16].decode("ascii").strip()
+              if name.endswith("/"):
+                  raise SystemExit("ar member names must be bare (no trailing slash)")
+              size = int(header[48:58].decode("ascii").strip())
+              pos += 60
+              members[name] = blob[pos:pos+size]
+              pos += size + (size % 2)
+          if list(members) != ["debian-binary", "control.tar.gz", "data.tar.gz"]:
+              raise SystemExit("Unexpected IPK members: " + repr(list(members)))
+          if members["debian-binary"] != b"2.0\\n":
+              raise SystemExit("Invalid debian-binary marker")
+          def read_tar(member):
+              return tarfile.open(fileobj=io.BytesIO(gzip.decompress(members[member])), mode="r:")
+          with read_tar("control.tar.gz") as tf:
+              control = tf.extractfile("control").read().decode()
+          fields = dict(line.split(": ", 1) for line in control.splitlines() if ": " in line)
+          with read_tar("data.tar.gz") as tf:
+              names = set(tf.getnames())
+              required = [
+                  "usr/palm/applications/com.ashika.livetv.webos/appinfo.json",
+                  "usr/palm/applications/com.ashika.livetv.webos/index.html",
+                  "usr/palm/applications/com.ashika.livetv.webos/app.js",
+                  "usr/palm/applications/com.ashika.livetv.webos/style.css",
+                  "usr/palm/packages/com.ashika.livetv.webos/packageinfo.json",
+              ]
+              missing = [name for name in required if name not in names]
+              if missing:
+                  raise SystemExit("Missing package files: " + repr(missing))
+              appinfo = json.load(tf.extractfile(required[0]))
+              packageinfo = json.load(tf.extractfile(required[-1]))
+          version = appinfo["version"]
+          if fields.get("Version") != version or packageinfo.get("version") != version:
+              raise SystemExit("Version mismatch between control, appinfo and packageinfo")
+          if packageinfo.get("package_format_version") != 2:
+              raise SystemExit("Invalid package format version")
+          print(f"Validated {path}: version {version}, bare ar headers, app and package metadata present")
+          PY
           BYTES="$(wc -c < "$PKG" | tr -d ' ')"
-          echo "Validated $PKG ($BYTES bytes)"
+          echo "IPK size: $BYTES bytes"
       - uses: actions/upload-artifact@v4
         with:
           name: ashika-live-tv-v6.3.0-ipk
