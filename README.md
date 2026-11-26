@@ -10,7 +10,8 @@
 - Automatic reconnect with bounded exponential backoff and optional next-channel fallback
 - XMLTV / EPG guide and current programme display
 - Parental PIN protection for a configured M3U group (local-only; not encrypted)
-- Video Fit / Fill, retry, stop, Magic Remote keyboard navigation
+- Video Fit / Fill, fullscreen, mute/unmute, retry, stop, next/previous channel controls and Magic Remote keyboard shortcuts (F/M, Channel Up/Down)
+- Sleep timer with 15, 30, 45, 60, 90 and 120 minute auto-stop options
 - JSON backup and restore for playlists, favourites, history and settings
 - Playlist auto-refresh and device diagnostics (network, storage and playback engines)
 - Persistent local settings with legacy storage migration
