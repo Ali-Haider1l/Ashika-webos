@@ -54,7 +54,7 @@ function renderGuide(){const now=Date.now(),wanted=channels.map(c=>c.tvgId).filt
 function updateProgram(){
  const c=current(),now=Date.now();
  if(!c||!c.tvgId){$("current-program").textContent="";$("next-program").textContent="";$("program-progress").style.width="0%";return;}
- const items=epg.filter(x=>x.channel===c.tvgId).map(x=>({...x,_start:(xmlDate(x.start)?xmlDate(x.start).getTime():0),_stop:(xmlDate(x.stop)?xmlDate(x.stop).getTime():0)})).filter(x=>x._start&&x._stop).sort((a,b)=>a._start-b._start);
+ const items=epg.filter(x=>x.channel===c.tvgId).map(function(x){return {channel:x.channel,start:x.start,stop:x.stop,title:x.title,desc:x.desc,_start:(xmlDate(x.start)?xmlDate(x.start).getTime():0),_stop:(xmlDate(x.stop)?xmlDate(x.stop).getTime():0)};}).filter(x=>x._start&&x._stop).sort((a,b)=>a._start-b._start);
  const live=items.find(x=>x._start<=now&&x._stop>now),next=items.find(x=>x._start>now);
  $("current-program").textContent=live?"NOW · "+live.title:"No current programme data";
  $("next-program").textContent=next?"NEXT · "+new Date(next._start).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+" · "+next.title:"";
