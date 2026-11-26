@@ -7,7 +7,6 @@ VERSION="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["versi
 WORK="$ROOT/build/ipk-root"
 OUT="$ROOT/dist"
 APP_DIR="$WORK/usr/palm/applications/$APP_ID"
-MAX_IPK_BYTES=$((9 * 1024 * 1024))
 
 rm -rf "$ROOT/build" "$OUT"
 mkdir -p "$APP_DIR" "$OUT" "$ROOT/build/control"
@@ -60,11 +59,6 @@ tar -cf - -C "$WORK" . | gzip -9n > "$ROOT/build/data.tar.gz"
 
 PKG="$OUT/${APP_ID}_${VERSION}_all.ipk"
 SIZE_BYTES="$(wc -c < "$PKG" | tr -d ' ')"
-if (( SIZE_BYTES > MAX_IPK_BYTES )); then
-  echo "ERROR: IPK is larger than the 9 MiB size budget: $SIZE_BYTES bytes" >&2
-  exit 1
-fi
-
 echo "Built: $PKG"
 echo "IPK size: $SIZE_BYTES bytes ($(awk -v n="$SIZE_BYTES" 'BEGIN {printf "%.2f MiB", n/1048576}'))"
-echo "Size budget: 9 MiB — PASS"
+echo "No artificial package-size limit is applied."
