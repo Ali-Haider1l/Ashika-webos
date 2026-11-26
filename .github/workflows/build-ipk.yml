@@ -33,13 +33,13 @@ jobs:
           path = sys.argv[1]
           with open(path, "rb") as f:
               blob = f.read()
-          if not blob.startswith(b"!<arch>\\n"):
+          if not blob.startswith(b"!<arch>\n"):
               raise SystemExit("Invalid ar magic")
           pos = 8
           members = {}
           while pos < len(blob):
               header = blob[pos:pos+60]
-              if len(header) != 60 or header[58:60] != b"`\\n":
+              if len(header) != 60 or header[58:60] != b"`\n":
                   raise SystemExit("Invalid ar member header")
               name = header[:16].decode("ascii").strip()
               if name.endswith("/"):
@@ -50,7 +50,7 @@ jobs:
               pos += size + (size % 2)
           if list(members) != ["debian-binary", "control.tar.gz", "data.tar.gz"]:
               raise SystemExit("Unexpected IPK members: " + repr(list(members)))
-          if members["debian-binary"] != b"2.0\\n":
+          if members["debian-binary"] != b"2.0\n":
               raise SystemExit("Invalid debian-binary marker")
           def read_tar(member):
               return tarfile.open(fileobj=io.BytesIO(gzip.decompress(members[member])), mode="r:")
