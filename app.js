@@ -179,7 +179,7 @@ function ensureDefaultPlaylist(){
   render();
  }
  save();
- var pending=playlists.filter(function(p){return DEFAULT_PLAYLISTS.some(function(d){return d.url===p.url;})&&!parseM3U(p.content||"").length;});
+ var pending=playlists.filter(function(p){return !!p.url&&!parseM3U(p.content||"").length;});
  if(pending.length){
   setStatus("Loading "+pending.length+" playlist source(s)…");
   Promise.all(pending.map(function(p){return refreshOne(p,true).then(function(ok){return {playlist:p,ok:ok};});})).then(function(results){
@@ -193,6 +193,6 @@ function ensureDefaultPlaylist(){
   });
  }else if(selected&&parseM3U(selected.content||"").length){channels=parseM3U(selected.content);render();}
 }
-function init(){try{let raw=localStorage.getItem(STORE);if(!raw){raw=localStorage.getItem(LEGACY_STORE);if(raw)localStorage.setItem(STORE,raw);}const s=JSON.parse(raw||"{}");playlists=Array.isArray(s.playlists)?s.playlists:[];activePlaylistId=s.activePlaylistId||null;settings=Object.assign(settings,s.settings||{});recent=Array.isArray(s.recent)?s.recent:[];try{const savedRecent=JSON.parse(localStorage.getItem(RECENT_STORE)||"null");if(Array.isArray(savedRecent))recent=savedRecent;}catch(ignore){}favourites=Array.isArray(s.favourites)?s.favourites:[];favouriteSet=new Set(favourites);}catch(e){}$("refresh-interval").value=String(settings.refresh||0);$("epg-url").value=settings.epgUrl||"";$("autoplay-next").checked=!!settings.autoplayNext;$("auto-retry").checked=settings.autoRetry!==false;$("max-retries").value=String((settings.maxRetries===undefined?3:settings.maxRetries));$("parental-pin").value=settings.parentalPin||"";$("protected-group").value=settings.protectedGroup||"";bind();const p=activePlaylist();if(p){channels=parseM3U(p.content||"");}render();scheduleRefresh();tick();ensureDefaultPlaylist();setInterval(tick,30000);}
+function init(){try{let raw=localStorage.getItem(STORE);if(!raw){raw=localStorage.getItem(LEGACY_STORE);if(raw)localStorage.setItem(STORE,raw);}const s=JSON.parse(raw||"{}");playlists=Array.isArray(s.playlists)?s.playlists:[];activePlaylistId=s.activePlaylistId||null;settings=Object.assign(settings,s.settings||{});recent=Array.isArray(s.recent)?s.recent:[];try{const savedRecent=JSON.parse(localStorage.getItem(RECENT_STORE)||"null");if(Array.isArray(savedRecent))recent=savedRecent;}catch(ignore){}favourites=Array.isArray(s.favourites)?s.favourites:[];favouriteSet=new Set(favourites);}catch(e){}$("refresh-interval").value=String(settings.refresh||0);$("epg-url").value=settings.epgUrl||"";$("autoplay-next").checked=!!settings.autoplayNext;$("auto-retry").checked=settings.autoRetry!==false;$("max-retries").value=String((settings.maxRetries===undefined?3:settings.maxRetries));$("parental-pin").value=settings.parentalPin||"";$("protected-group").value=settings.protectedGroup||"";bind();window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")save();});const p=activePlaylist();if(p){channels=parseM3U(p.content||"");}render();scheduleRefresh();tick();ensureDefaultPlaylist();setInterval(tick,30000);}
 try{init();}catch(err){try{setStatus("Application startup error: "+(err&&err.message?err.message:String(err)));}catch(ignore){}if(window.console&&console.error)console.error("Ashika Live TV startup error",err);}
 })();
