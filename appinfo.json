@@ -1,6 +1,6 @@
 {
   "id": "com.ashika.livetv.webos",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "vendor": "Ashika",
   "type": "web",
   "main": "index.html",
