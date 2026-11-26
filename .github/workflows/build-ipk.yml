@@ -13,12 +13,21 @@ jobs:
       - name: Build webOS IPK
         run: |
           sudo apt-get update
-          sudo apt-get install -y binutils
+          sudo apt-get install -y binutils python3
           chmod +x scripts/build-ipk.sh
           ./scripts/build-ipk.sh
+      - name: Validate IPK package structure
+        run: |
+          set -e
+          PKG="$(find dist -name '*.ipk' -type f | head -n 1)"
+          test -n "$PKG"
+          ar t "$PKG" | grep -qx 'debian-binary'
+          ar t "$PKG" | grep -qx 'control.tar.gz'
+          ar t "$PKG" | grep -qx 'data.tar.gz'
+          echo "Validated $PKG"
       - uses: actions/upload-artifact@v4
         with:
-          name: ashika-live-tv-v2.0.0-ipk
+          name: ashika-live-tv-v3.0.0-ipk
           path: dist/*.ipk
           if-no-files-found: error
           retention-days: 30
