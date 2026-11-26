@@ -29,7 +29,7 @@
   <div class="sidebar-footer"><button id="load-demo" class="text-btn">Load sample</button><button id="manage-btn" class="text-btn">Manage playlists</button><button id="backup-btn" class="text-btn">Backup / Restore</button></div>
  </aside>
 </main>
-<footer>ASHIKA LIVE TV <span>VERSION 3.0.0</span><span id="footer-playlist" class="footer-playlist">No playlist selected</span><span class="footer-right">Made for LG webOS TV</span></footer>
+<footer>ASHIKA LIVE TV <span>VERSION 5.0.0</span><span id="footer-playlist" class="footer-playlist">No playlist selected</span><span class="footer-right">Made for LG webOS TV</span></footer>
 </div>
 
 <dialog id="playlist-dialog">
@@ -53,6 +53,8 @@
  <label for="epg-url">TV Guide / XMLTV URL (optional)</label><input id="epg-url" class="field" type="url" placeholder="https://example.com/epg.xml">
  <p class="hint">The guide reads XMLTV programme data. EPG channel IDs should match the playlist tvg-id values. URL access depends on the provider's CORS policy.</p>
  <label class="check-label"><input id="autoplay-next" type="checkbox"> Automatically play next channel if a stream fails</label>
+ <label class="check-label"><input id="auto-retry" type="checkbox" checked> Automatically reconnect when playback fails</label>
+ <label for="max-retries">Maximum reconnect attempts</label><select id="max-retries" class="field"><option value="0">Off</option><option value="1">1 attempt</option><option value="2">2 attempts</option><option value="3" selected>3 attempts</option><option value="5">5 attempts</option></select>
  <div id="settings-message" class="error"></div>
  <div class="dialog-actions"><button class="outline" data-close="settings-dialog">Cancel</button><button id="save-settings" class="primary">Save settings</button></div>
 </dialog>
