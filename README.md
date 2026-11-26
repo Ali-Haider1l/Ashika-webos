@@ -1,6 +1,6 @@
 # Ashika Live TV — Ultimate Edition
 
-**Version 6.0.0 · LG webOS**
+**Version 6.1.0 · LG webOS**
 
 ## Features
 - Multiple M3U/M3U8 playlists with add, open, rename, remove, explicit Save All, local file import, refresh and persistent on-device library
@@ -10,7 +10,7 @@
 - Automatic reconnect with bounded exponential backoff and optional next-channel fallback
 - XMLTV / EPG guide and current programme display
 - Parental PIN protection for a configured M3U group (local-only; not encrypted)
-- Video Fit / Fill, fullscreen, mute/unmute, retry, stop, next/previous channel controls and Magic Remote keyboard shortcuts (F/M, Channel Up/Down)
+- Advanced player controls: 10-second skip back/forward, playback speed (0.5×–2×), volume presets, video Fit/Fill, fullscreen, mute/unmute, retry, stop, next/previous channel and Magic Remote shortcuts (F/M, arrows, Channel Up/Down, Space)
 - Sleep timer with 15, 30, 45, 60, 90 and 120 minute auto-stop options
 - JSON backup and restore for playlists, favourites, history and settings
 - Playlist auto-refresh and device diagnostics (network, storage and playback engines)
