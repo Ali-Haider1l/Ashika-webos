@@ -18,3 +18,5 @@
 .channel-info-card p{font-size:12px;color:#cbd5e3;margin:5px 0;line-height:1.5}
 .channel-info-card span{color:#9eabc0}.quick-info b{color:#dce4f1;font-weight:600}
 @media(max-width:700px){.network-status{display:none}.program-track{max-width:100%}}
+
+.load-more{display:block;width:calc(100% - 18px);margin:8px 9px 12px;padding:11px;border:1px solid #40516c;border-radius:8px;background:#1a2940;color:#dce4f1;font-size:11px;font-weight:700}.load-more:focus-visible{outline:3px solid #ff7891;outline-offset:2px}
