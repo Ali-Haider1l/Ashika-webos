@@ -10,26 +10,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build webOS IPK
+      - name: Install build tools
         run: |
           sudo apt-get update
           sudo apt-get install -y binutils python3
+      - name: Check source syntax
+        run: |
+          node --check app.js
+          bash -n scripts/build-ipk.sh
+          python3 -m json.tool appinfo.json >/dev/null
+      - name: Build optimized webOS IPK
+        run: |
           chmod +x scripts/build-ipk.sh
           ./scripts/build-ipk.sh
-      - name: Check JavaScript syntax
-        run: node --check app.js
-      - name: Validate IPK package structure
+      - name: Validate IPK structure, contents and size
         run: |
-          set -e
+          set -euo pipefail
           PKG="$(find dist -name '*.ipk' -type f | head -n 1)"
           test -n "$PKG"
           ar t "$PKG" | grep -qx 'debian-binary'
           ar t "$PKG" | grep -qx 'control.tar.gz'
           ar t "$PKG" | grep -qx 'data.tar.gz'
-          echo "Validated $PKG"
+          TMP="$(mktemp -d)"
+          trap 'rm -rf "$TMP"' EXIT
+          (cd "$TMP" && ar x "$GITHUB_WORKSPACE/$PKG")
+          tar -tzf "$TMP/data.tar.gz" | grep -q '/app.js$'
+          tar -tzf "$TMP/data.tar.gz" | grep -q '/index.html$'
+          tar -tzf "$TMP/data.tar.gz" | grep -q '/style.css$'
+          BYTES="$(wc -c < "$PKG" | tr -d ' ')"
+          test "$BYTES" -le "$((9 * 1024 * 1024))"
+          echo "Validated $PKG ($BYTES bytes; within 9 MiB budget)"
       - uses: actions/upload-artifact@v4
         with:
-          name: ashika-live-tv-v6.0.0-ipk
+          name: ashika-live-tv-v6.1.0-ipk
           path: dist/*.ipk
           if-no-files-found: error
           retention-days: 30
