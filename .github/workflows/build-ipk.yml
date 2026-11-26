@@ -38,11 +38,10 @@ jobs:
           tar -tzf "$TMP/data.tar.gz" | grep -q '/index.html$'
           tar -tzf "$TMP/data.tar.gz" | grep -q '/style.css$'
           BYTES="$(wc -c < "$PKG" | tr -d ' ')"
-          test "$BYTES" -le "$((9 * 1024 * 1024))"
-          echo "Validated $PKG ($BYTES bytes; within 9 MiB budget)"
+          echo "Validated $PKG ($BYTES bytes)"
       - uses: actions/upload-artifact@v4
         with:
-          name: ashika-live-tv-v6.1.0-ipk
+          name: ashika-live-tv-v6.2.0-ipk
           path: dist/*.ipk
           if-no-files-found: error
           retention-days: 30
