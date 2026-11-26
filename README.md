@@ -16,6 +16,10 @@
 - Playlist auto-refresh and device diagnostics (network, storage and playback engines)
 - Persistent local settings with legacy storage migration
 
+## Package size and build
+- The IPK build uses a compact indexed-colour app icon and maximum gzip compression.
+- GitHub Actions checks the package contents and enforces a 9 MiB maximum IPK size; it never adds dummy files just to inflate the download.
+
 ## Build
 ```bash
 chmod +x scripts/build-ipk.sh
