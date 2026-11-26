@@ -20,7 +20,7 @@ jobs:
       - name: Check source syntax
         run: |
           node --check app.js
-          ./node_modules/.bin/babel app.js --config-file babel.config.json --out-file /tmp/ashika-app.compat.js
+          ./node_modules/.bin/babel app.js --config-file ./babel.config.json --out-file /tmp/ashika-app.compat.js
           node --check /tmp/ashika-app.compat.js
           bash -n scripts/build-ipk.sh
           python3 -m json.tool appinfo.json >/dev/null
