@@ -15,7 +15,12 @@ rm -rf "$ROOT/build" "$OUT"
 mkdir -p "$APP_DIR" "$PKG_META_DIR" "$OUT" "$ROOT/build/control"
 
 # Copy only the runtime application files.
-cp "$ROOT/appinfo.json" "$ROOT/index.html" "$ROOT/style.css" "$ROOT/app.js" "$APP_DIR/"
+cp "$ROOT/appinfo.json" "$ROOT/index.html" "$ROOT/style.css" "$APP_DIR/"
+# Compile the app for the Chromium 53 engine used by webOS TV 4.x.
+if [ ! -x "$ROOT/node_modules/.bin/babel" ]; then
+  (cd "$ROOT" && npm install --no-save --no-package-lock --no-audit --no-fund @babel/core@7 @babel/cli@7 @babel/preset-env@7)
+fi
+"$ROOT/node_modules/.bin/babel" "$ROOT/app.js" --config-file "$ROOT/babel.config.json" --out-file "$APP_DIR/app.js"
 
 # Generate a compact 256x256 indexed-colour PNG icon.
 python3 - "$APP_DIR/icon.png" <<'PY'
