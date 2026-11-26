@@ -3,7 +3,7 @@
 **Version 6.0.0 · LG webOS**
 
 ## Features
-- Multiple M3U/M3U8 playlists, local file import, playlist refresh and playlist management
+- Multiple M3U/M3U8 playlists with add, open, rename, remove, explicit Save All, local file import, refresh and persistent on-device library
 - Channel search, category groups, favourites, recently watched, A–Z / Z–A sorting
 - HLS and MPEG-DASH playback, native media fallback
 - HLS quality, audio and subtitle track selection when exposed by the stream
