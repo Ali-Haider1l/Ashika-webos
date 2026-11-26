@@ -87,7 +87,7 @@ jobs:
           echo "IPK size: $BYTES bytes"
       - uses: actions/upload-artifact@v4
         with:
-          name: ashika-live-tv-v7.0.7-ipk
+          name: ashika-live-tv-v7.0.8-ipk
           path: dist/*.ipk
           if-no-files-found: error
           retention-days: 30
