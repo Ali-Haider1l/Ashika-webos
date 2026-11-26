@@ -1,6 +1,6 @@
 # Ashika Live TV — Ultimate Edition
 
-**Version 7.0.9 · LG webOS**
+**Version 7.0.10 · LG webOS**
 
 ## Features
 - Built-in Bangladesh IPTV, FreeHunter HDTV and Toffee BD playlists (auto-added to the playlist library on first launch)
@@ -17,7 +17,7 @@
 - Advanced player controls: 10-second skip back/forward, playback speed (0.5×–2×), volume presets, video Fit/Fill, fullscreen, mute/unmute, retry, stop, next/previous channel and Magic Remote shortcuts (F/M, arrows, Channel Up/Down, Space)
 - Sleep timer with 15, 30, 45, 60, 90 and 120 minute auto-stop options
 - JSON backup and restore for playlists, favourites, history and settings
-- Playlist auto-refresh and device diagnostics (network, storage and playback engines)
+- Playlist auto-refresh, Toffee signed-stream URL refresh on playback retry, and device diagnostics (network, storage and playback engines)
 - Persistent local settings with legacy storage migration
 
 ## Package size and build
