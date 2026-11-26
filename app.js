@@ -88,13 +88,14 @@ function tick(){$("clock").textContent=new Date().toLocaleTimeString([],{hour:"2
 function remoteFocusable(){return Array.from(document.querySelectorAll('button:not([disabled]),select:not([disabled]),input:not([disabled]),[tabindex="0"]')).filter(el=>{if(el.classList&&el.classList.contains("channel"))return false;if(el.closest("dialog")&&!el.closest("dialog").open)return false;const r=el.getBoundingClientRect(),st=getComputedStyle(el);return r.width>0&&r.height>0&&st.visibility!=="hidden"&&st.display!=="none";});}
 function focusAndReveal(el){if(!el)return;el.focus();if(el.classList&&el.classList.contains("channel")){const list=$("channel-list"),r=el.getBoundingClientRect(),lr=list.getBoundingClientRect();if(r.bottom>lr.bottom)list.scrollTop+=r.bottom-lr.bottom;else if(r.top<lr.top)list.scrollTop-=lr.top-r.top;}}
 function focusFirst(selector){const el=document.querySelector(selector);if(el)focusAndReveal(el);return el;}
+function focusLast(selector){const items=document.querySelectorAll(selector),el=items.length?items[items.length-1]:null;if(el)focusAndReveal(el);return el;}
 function focusSibling(row,active,selector,step){if(!row)return false;const items=Array.from(row.querySelectorAll(selector));const i=items.indexOf(active);if(i<0)return false;const next=items[i+step];if(next){focusAndReveal(next);return true;}return false;}
 function handleRemoteKey(e){
  const code=e.keyCode||e.which||0;let key=e.key||"";
  if(code===37)key="ArrowLeft";else if(code===38)key="ArrowUp";else if(code===39)key="ArrowRight";else if(code===40)key="ArrowDown";else if(code===13)key="Enter";else if(code===461||code===8||key==="BrowserBack"||key==="GoBack")key="Back";else if(code===33)key="PageUp";else if(code===34)key="PageDown";
  const active=document.activeElement||document.body,tag=active.tagName;
  if(key==="Back"){const openDialog=document.querySelector("dialog[open]");if(openDialog){e.preventDefault();e.stopPropagation();openDialog.close();return;}if(document.fullscreenElement){e.preventDefault();e.stopPropagation();document.exitFullscreen();return;}return;}
- if(["INPUT","TEXTAREA"].includes(tag)){if(key==="ArrowUp"||key==="ArrowDown"||key==="ArrowLeft"||key==="ArrowRight")return;}
+ if(["INPUT","TEXTAREA"].includes(tag)){if(key==="ArrowLeft"||key==="ArrowRight")return;}
  if(tag==="SELECT"&&(key==="ArrowUp"||key==="ArrowDown"||key==="ArrowLeft"||key==="ArrowRight"))return;
  if(key==="ChannelDown"||key==="PageDown"){e.preventDefault();e.stopPropagation();changeChannel(1);return;}
  if(key==="ChannelUp"||key==="PageUp"){e.preventDefault();e.stopPropagation();changeChannel(-1);return;}
@@ -130,12 +131,12 @@ function handleRemoteKey(e){
    else if(active.id==="search")focusFirst("#sort-select");
    else if(active.closest(".sort-row"))focusFirst(".groups .group-chip");
    else if(groupRow)focusFirst("#channel-list .channel");
-   else if(active.closest(".sidebar-footer"))focusFirst("#channel-list .channel:last-of-type");
+   else if(active.closest(".sidebar-footer"))focusLast("#channel-list .channel");
    else focusFirst("#channel-list .channel");
    return;
   }
   if(key==="ArrowUp"){
-   if(active.closest(".sidebar-footer"))focusFirst("#channel-list .channel:last-of-type");
+   if(active.closest(".sidebar-footer"))focusLast("#channel-list .channel");
    else if(groupRow)focusFirst("#sort-select");
    else if(active.closest(".sort-row"))focusFirst("#search");
    else if(active.id==="search")focusFirst(".filter-row .filter-chip:last-child");
