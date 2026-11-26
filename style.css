@@ -42,3 +42,13 @@ dialog{width:92vw;max-width:540px}
  .sidebar{flex:1 0 42vh;-webkit-flex:1 0 42vh;min-height:280px}
  .guide-row{display:flex;display:-webkit-flex}
 }
+
+
+/* Slightly larger interface icons for better TV-distance visibility */
+.brand-mark{width:48px;height:48px;font-size:29px}
+.icon-btn{width:42px;height:42px;font-size:24px}
+.channel-logo{width:42px;height:42px}
+.fav{font-size:19px}
+.play-symbol{width:72px;height:72px;font-size:28px}
+.channel{gap:11px;padding:10px}
+@media(max-width:700px){.brand-mark{width:44px;height:44px}.icon-btn{width:40px;height:40px}.channel-logo{width:40px;height:40px}}
