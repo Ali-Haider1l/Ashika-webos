@@ -41,7 +41,7 @@ jobs:
           echo "Validated $PKG ($BYTES bytes)"
       - uses: actions/upload-artifact@v4
         with:
-          name: ashika-live-tv-v6.2.0-ipk
+          name: ashika-live-tv-v6.3.0-ipk
           path: dist/*.ipk
           if-no-files-found: error
           retention-days: 30
