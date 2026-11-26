@@ -20,3 +20,25 @@
 @media(max-width:700px){.network-status{display:none}.program-track{max-width:100%}}
 
 .load-more{display:block;width:calc(100% - 18px);margin:8px 9px 12px;padding:11px;border:1px solid #40516c;border-radius:8px;background:#1a2940;color:#dce4f1;font-size:11px;font-weight:700}.load-more:focus-visible{outline:3px solid #ff7891;outline-offset:2px}
+
+
+/* webOS 4.x (Chromium 53) layout fallback: no CSS Grid or flex-gap dependency. */
+.layout{display:flex;display:-webkit-flex;grid-template-columns:none;gap:0}
+.watch-area{flex:1 1 0%;-webkit-flex:1 1 0%;min-width:0}
+.sidebar{flex:0 0 360px;-webkit-flex:0 0 360px}
+.guide-row{display:flex;display:-webkit-flex;grid-template-columns:none}
+.guide-time{flex:0 0 105px;-webkit-flex:0 0 105px}
+dialog{width:92vw;max-width:540px}
+.channel-info-card{word-wrap:break-word;overflow-wrap:break-word}
+.top-actions>*{margin-left:5px}
+.player-actions>*{margin-left:4px;margin-bottom:4px}
+.filter-row>*{margin-right:5px}
+.groups>*{margin-right:5px}
+.dialog-actions>*{margin-left:6px}
+@media(max-width:1000px){.sidebar{flex-basis:320px;-webkit-flex-basis:320px}}
+@media(max-width:700px){
+ .layout{display:flex;display:-webkit-flex;flex-direction:column;-webkit-flex-direction:column;overflow-y:auto}
+ .watch-area{flex:0 0 54vh;-webkit-flex:0 0 54vh;min-height:290px}
+ .sidebar{flex:1 0 42vh;-webkit-flex:1 0 42vh;min-height:280px}
+ .guide-row{display:flex;display:-webkit-flex}
+}
