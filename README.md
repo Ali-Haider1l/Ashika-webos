@@ -1,6 +1,6 @@
 # Ashika Live TV — Ultimate Edition
 
-**Version 7.0.5 · LG webOS**
+**Version 7.0.8 · LG webOS**
 
 ## Features
 - Built-in Bangladesh IPTV playlist (auto-added to the playlist library on first launch)
