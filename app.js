@@ -161,25 +161,37 @@ function handleRemoteKey(e){
  if(best)focusAndReveal(best);
 }
 function bind(){ $("network-status").textContent="● "+(navigator.onLine?"Online":"Offline");$("network-status").classList.toggle("offline",!navigator.onLine);$("open-playlist").onclick=()=>$("playlist-dialog").showModal();$("manager-add").onclick=()=>{$("manage-dialog").close();$("playlist-dialog").showModal();};$("settings-btn").onclick=()=>$("settings-dialog").showModal();$("manage-btn").onclick=()=>{manager();$("manage-dialog").showModal();};$("save-playlists").onclick=savePlaylistLibrary;$("guide-btn").onclick=()=>{$("guide-dialog").showModal();loadEPG();};$("load-guide").onclick=loadEPG;$("import-btn").onclick=addPlaylist;$("refresh-btn").onclick=()=>refreshAll(false);$("save-settings").onclick=saveSettings;$("diagnostics-btn").onclick=runDiagnostics;$("prev-channel").onclick=()=>changeChannel(-1);$("next-channel").onclick=()=>changeChannel(1);$("fullscreen-btn").onclick=toggleFullscreen;$("mute-btn").onclick=()=>{video.muted=!video.muted;$("mute-btn").textContent=video.muted?"🔇 Unmute":"🔊 Mute";};video.addEventListener("volumechange",()=>{if($("volume-select"))$("volume-select").value=String(video.muted?0:Math.round(video.volume*100));});$("sleep-timer").onchange=()=>setSleepTimer($("sleep-timer").value);$("speed-select").onchange=()=>$("player").playbackRate=Number($("speed-select").value)||1;$("volume-select").onchange=()=>{video.volume=Math.max(0,Math.min(1,Number($("volume-select").value)/100));video.muted=video.volume===0;$("mute-btn").textContent=video.muted?"🔇 Unmute":"🔊 Mute";};$("skip-back").onclick=()=>{if(Number.isFinite(video.currentTime))video.currentTime=Math.max(0,video.currentTime-10);};$("skip-forward").onclick=()=>{if(Number.isFinite(video.duration))video.currentTime=Math.min(video.duration,video.currentTime+10);};$("search").oninput=()=>{visibleLimit=250;if(searchTimer)clearTimeout(searchTimer);searchTimer=setTimeout(()=>{searchTimer=null;render();},110);};$("sort-select").onchange=render;$("retry-btn").onclick=()=>{if(activeChannel!==null)play(activeChannel);};$("fit-btn").onclick=()=>{video.style.objectFit=video.style.objectFit==="cover"?"contain":"cover";$("fit-btn").textContent=video.style.objectFit==="cover"?"▣ Fill":"▣ Fit";};$("quality-select").onchange=()=>{if(hls)hls.currentLevel=Number($("quality-select").value);};$("audio-select").onchange=()=>{if(hls)hls.audioTrack=Number($("audio-select").value);};$("subtitle-select").onchange=()=>{if(hls)hls.subtitleTrack=Number($("subtitle-select").value);};$("backup-btn").onclick=()=>{$("backup-status").textContent="";$("backup-dialog").showModal();};$("export-backup").onclick=exportBackup;$("backup-file").onchange=()=>{const file=$("backup-file").files[0];if(file)restoreBackup(file);};$("fav-current").onclick=()=>{if(current())toggleFav(current());};$("channel-info-btn").onclick=showChannelInfo;window.addEventListener("online",()=>{$("network-status").textContent="● Online";$("network-status").classList.remove("offline");if(activeChannel!==null&&video.error)scheduleRecovery(activeChannel,"Internet restored. Reconnecting…");if(settings.epgUrl&&epg.length===0)loadEPG();});window.addEventListener("offline",()=>{$("network-status").textContent="● Offline";$("network-status").classList.add("offline");});video.addEventListener("loadedmetadata",updateChannelStats);video.addEventListener("loadeddata",updateChannelStats);video.addEventListener("waiting",()=>{if(activeChannel!==null)setStatus("Buffering video…");});video.addEventListener("stalled",()=>{if(activeChannel!==null)setStatus("Stream stalled. Waiting for data…");});video.addEventListener("playing",updateChannelStats);$("load-demo").onclick=()=>{const p={id:id(),name:"Sample playlist",url:"",content:sample,updated:Date.now()};playlists.push(p);loadPlaylist(p);};$("stop-btn").onclick=()=>{stopEngines();activeChannel=null;$("current-title").textContent="Playback stopped";$("current-group").textContent="Choose another channel";$("player-placeholder").classList.remove("hidden");setStatus("");render();};document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).close());document.querySelectorAll(".filter-chip").forEach(b=>b.onclick=()=>{filter=b.dataset.filter;visibleLimit=250;document.querySelectorAll(".filter-chip").forEach(x=>x.classList.toggle("active",x===b));render();});$("groups").onclick=e=>{const b=e.target.closest("[data-group]");if(b){activeGroup=b.dataset.group;visibleLimit=250;render();}};$("channel-list").onclick=e=>{const more=e.target.closest("#load-more-channels");if(more){visibleLimit+=250;render();return;}const b=e.target.closest(".channel");if(b)play(Number(b.dataset.index),false,true);};$("playlist-file").onchange=()=>{if($("playlist-file").files[0])$("playlist-url").value="";};video.addEventListener("playing",()=>{if(video.videoWidth>0&&video.videoHeight>0){if(nativeFallbackTimer){clearTimeout(nativeFallbackTimer);nativeFallbackTimer=null;}setStatus("");}else if(nativeFallbackTimer){setStatus("Audio is playing; waiting for the video track…");}updateChannelStats();});video.addEventListener("error",()=>{if(activeChannel!==null)scheduleRecovery(activeChannel,"Playback failed. Stream may be offline or unsupported.");});document.addEventListener("keydown",handleRemoteKey,true);}
-const DEFAULT_PLAYLIST_URL="https://raw.githubusercontent.com/Shadmanislam/bdiptv/master/BD%20IPTV.m3u";
+const DEFAULT_PLAYLISTS=[
+ {name:"Bangladesh IPTV",url:"https://raw.githubusercontent.com/Shadmanislam/bdiptv/master/BD%20IPTV.m3u"},
+ {name:"FreeHunter HDTV",url:"https://raw.githubusercontent.com/ahan443/FreeHunter/refs/heads/main/HDTV.m3u"},
+ {name:"Toffee BD",url:"https://raw.githubusercontent.com/srhady/toffee-bd/refs/heads/main/toffee_playlist.m3u"}
+];
 function ensureDefaultPlaylist(){
- var p=playlists.find(function(x){return x.url===DEFAULT_PLAYLIST_URL;});
- if(!p){p={id:id(),name:"Bangladesh IPTV",url:DEFAULT_PLAYLIST_URL,content:"",updated:0};playlists.unshift(p);}
+ DEFAULT_PLAYLISTS.forEach(function(source){
+  if(!playlists.some(function(p){return p.url===source.url;})){
+   playlists.push({id:id(),name:source.name,url:source.url,content:"",updated:0});
+  }
+ });
  var selected=activePlaylist();
- if(!selected||!parseM3U(selected.content||"").length){activePlaylistId=p.id;channels=parseM3U(p.content||"");render();}
+ if(!selected||!parseM3U(selected.content||"").length){
+  var first=playlists.find(function(p){return DEFAULT_PLAYLISTS.some(function(d){return d.url===p.url;});});
+  if(first){activePlaylistId=first.id;channels=parseM3U(first.content||"");}
+  render();
+ }
  save();
- if(!p.content){
-  setStatus("Loading Bangladesh IPTV playlist…");
-  refreshOne(p,true).then(function(ok){
-   if(ok){
-    if(activePlaylistId===p.id||!channels.length){activePlaylistId=p.id;channels=parseM3U(p.content);activeChannel=null;render();}
-    save();setStatus("Bangladesh IPTV playlist loaded: "+parseM3U(p.content).length+" channels.");
-   }else{
-    if(activePlaylistId===p.id){channels=[];render();}
-    setStatus("Playlist could not load. Check internet/CORS, then press Refresh.");
-   }
+ var pending=playlists.filter(function(p){return DEFAULT_PLAYLISTS.some(function(d){return d.url===p.url;})&&!parseM3U(p.content||"").length;});
+ if(pending.length){
+  setStatus("Loading "+pending.length+" playlist source(s)…");
+  Promise.all(pending.map(function(p){return refreshOne(p,true).then(function(ok){return {playlist:p,ok:ok};});})).then(function(results){
+   var loaded=results.filter(function(x){return x.ok;});
+   var active=activePlaylist();
+   if(active&&parseM3U(active.content||"").length){channels=parseM3U(active.content);render();}
+   else if(loaded.length){activePlaylistId=loaded[0].playlist.id;channels=parseM3U(loaded[0].playlist.content);activeChannel=null;render();}
+   save();
+   var count=loaded.length;
+   setStatus(count?"Loaded "+count+" default playlist source(s). Open Manage Playlists to switch sources.":"Playlists added, but could not refresh. Check internet/CORS and use Refresh.");
   });
- }else if(activePlaylistId===p.id){channels=parseM3U(p.content);render();}
+ }else if(selected&&parseM3U(selected.content||"").length){channels=parseM3U(selected.content);render();}
 }
 function init(){try{let raw=localStorage.getItem(STORE);if(!raw){raw=localStorage.getItem(LEGACY_STORE);if(raw)localStorage.setItem(STORE,raw);}const s=JSON.parse(raw||"{}");playlists=Array.isArray(s.playlists)?s.playlists:[];activePlaylistId=s.activePlaylistId||null;settings=Object.assign(settings,s.settings||{});recent=Array.isArray(s.recent)?s.recent:[];try{const savedRecent=JSON.parse(localStorage.getItem(RECENT_STORE)||"null");if(Array.isArray(savedRecent))recent=savedRecent;}catch(ignore){}favourites=Array.isArray(s.favourites)?s.favourites:[];favouriteSet=new Set(favourites);}catch(e){}$("refresh-interval").value=String(settings.refresh||0);$("epg-url").value=settings.epgUrl||"";$("autoplay-next").checked=!!settings.autoplayNext;$("auto-retry").checked=settings.autoRetry!==false;$("max-retries").value=String((settings.maxRetries===undefined?3:settings.maxRetries));$("parental-pin").value=settings.parentalPin||"";$("protected-group").value=settings.protectedGroup||"";bind();const p=activePlaylist();if(p){channels=parseM3U(p.content||"");}render();scheduleRefresh();tick();ensureDefaultPlaylist();setInterval(tick,30000);}
 try{init();}catch(err){try{setStatus("Application startup error: "+(err&&err.message?err.message:String(err)));}catch(ignore){}if(window.console&&console.error)console.error("Ashika Live TV startup error",err);}
