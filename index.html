@@ -17,7 +17,8 @@
  <section class="watch-area">
   <div class="player-wrap"><video id="player" controls autoplay playsinline></video><div id="player-placeholder" class="player-placeholder"><div class="play-symbol">▶</div><h2>Welcome to Ashika Live TV</h2><p>Select a channel to start watching</p></div><div class="player-badge">LIVE PLAYER</div><div id="playback-status" class="playback-status"></div></div>
   <div class="now-playing"><div><small>NOW PLAYING</small><h1 id="current-title">No channel selected</h1><p id="current-group">Choose a channel from the list</p><p id="current-program" class="program-line"></p></div><div class="player-actions"><button id="fav-current" class="outline" title="Add to favourites">☆ Favourite</button><button id="retry-btn" class="outline">↻ Retry</button><button id="fit-btn" class="outline">▣ Fit</button><button id="stop-btn" class="outline">■ Stop</button></div></div>
-  <div class="player-tools"><label>Quality <select id="quality-select" class="mini-select"><option value="-1">Auto</option></select></label><label>Audio <select id="audio-select" class="mini-select"><option value="-1">Default</option></select></label><label>Subtitles <select id="subtitle-select" class="mini-select"><option value="-1">Off</option></select></label></div>\n  <div class="quick-info"><span>● HLS / DASH / Native stream playback</span><span id="channel-count">0 CHANNELS</span></div>
+  <div class="player-tools"><label>Quality <select id="quality-select" class="mini-select"><option value="-1">Auto</option></select></label><label>Audio <select id="audio-select" class="mini-select"><option value="-1">Default</option></select></label><label>Subtitles <select id="subtitle-select" class="mini-select"><option value="-1">Off</option></select></label></div>
+  <div class="quick-info"><span>● HLS / DASH / Native stream playback</span><span id="channel-count">0 CHANNELS</span></div>
  </section>
  <aside class="sidebar">
   <div class="sidebar-head"><div><h2>Channels</h2><p id="list-subtitle">Your playlist</p></div><button id="refresh-btn" class="icon-btn" title="Refresh playlist">↻</button></div>
@@ -56,7 +57,14 @@
  <div class="dialog-actions"><button class="outline" data-close="settings-dialog">Cancel</button><button id="save-settings" class="primary">Save settings</button></div>
 </dialog>
 
-<dialog id="backup-dialog">\n <div class="dialog-head"><div><small>DATA PORTABILITY</small><h2>Backup & Restore</h2></div><button class="close-btn" data-close="backup-dialog">✕</button></div>\n <p class="hint">Export your playlists, favourites, and settings to a JSON backup file. Restore a previous backup on this TV.</p>\n <div class="dialog-actions"><button id="export-backup" class="primary">↓ Export backup</button><label class="file-label">Restore backup<input id="backup-file" type="file" accept=".json,application/json"></label></div><div id="backup-status" class="error"></div>\n <div class="dialog-actions"><button class="outline" data-close="backup-dialog">Close</button></div>\n</dialog>\n\n<dialog id="guide-dialog">
+<dialog id="backup-dialog">
+ <div class="dialog-head"><div><small>DATA PORTABILITY</small><h2>Backup & Restore</h2></div><button class="close-btn" data-close="backup-dialog">✕</button></div>
+ <p class="hint">Export your playlists, favourites, and settings to a JSON backup file. Restore a previous backup on this TV.</p>
+ <div class="dialog-actions"><button id="export-backup" class="primary">↓ Export backup</button><label class="file-label">Restore backup<input id="backup-file" type="file" accept=".json,application/json"></label></div><div id="backup-status" class="error"></div>
+ <div class="dialog-actions"><button class="outline" data-close="backup-dialog">Close</button></div>
+</dialog>
+
+<dialog id="guide-dialog">
  <div class="dialog-head"><div><small>PROGRAMME SCHEDULE</small><h2>TV Guide</h2></div><button class="close-btn" data-close="guide-dialog">✕</button></div>
  <div class="guide-toolbar"><span id="guide-date">Today</span><button id="load-guide" class="outline">↻ Refresh guide</button></div>
  <div id="guide-list" class="guide-list"><div class="empty">Set an XMLTV URL in Settings to load programme listings.</div></div>
