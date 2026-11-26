@@ -1,6 +1,6 @@
 # Ashika Live TV — Ultimate Edition
 
-**Version 6.1.0 · LG webOS**
+**Version 6.2.0 · LG webOS**
 
 ## Features
 - Multiple M3U/M3U8 playlists with add, open, rename, remove, explicit Save All, local file import, refresh and persistent on-device library
@@ -8,7 +8,9 @@
 - HLS and MPEG-DASH playback, native media fallback
 - HLS quality, audio and subtitle track selection when exposed by the stream
 - Automatic reconnect with bounded exponential backoff and optional next-channel fallback
-- XMLTV / EPG guide and current programme display
+- XMLTV / EPG guide with current/next programme display and live progress bar
+- Channel information panel with TVG ID, group, stream host and source URL
+- Network online/offline indicator, video resolution and expanded device diagnostics
 - Parental PIN protection for a configured M3U group (local-only; not encrypted)
 - Advanced player controls: 10-second skip back/forward, playback speed (0.5×–2×), volume presets, video Fit/Fill, fullscreen, mute/unmute, retry, stop, next/previous channel and Magic Remote shortcuts (F/M, arrows, Channel Up/Down, Space)
 - Sleep timer with 15, 30, 45, 60, 90 and 120 minute auto-stop options
@@ -18,7 +20,7 @@
 
 ## Package size and build
 - The IPK build uses a compact indexed-colour app icon and maximum gzip compression.
-- GitHub Actions checks the package contents and enforces a 9 MiB maximum IPK size; it never adds dummy files just to inflate the download.
+- GitHub Actions checks package contents and reports the actual IPK size; there is no artificial size cap.
 
 ## Build
 ```bash
