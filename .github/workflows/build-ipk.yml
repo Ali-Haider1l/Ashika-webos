@@ -14,9 +14,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3
+          npm install --no-save --no-package-lock --no-audit --no-fund @babel/core@7 @babel/cli@7 @babel/preset-env@7
       - name: Check source syntax
         run: |
           node --check app.js
+          ./node_modules/.bin/babel app.js --config-file babel.config.json --out-file /tmp/ashika-app.compat.js
+          node --check /tmp/ashika-app.compat.js
           bash -n scripts/build-ipk.sh
           python3 -m json.tool appinfo.json >/dev/null
       - name: Build webOS-compatible IPK
@@ -82,7 +85,7 @@ jobs:
           echo "IPK size: $BYTES bytes"
       - uses: actions/upload-artifact@v4
         with:
-          name: ashika-live-tv-v6.4.0-ipk
+          name: ashika-live-tv-v7.0.0-ipk
           path: dist/*.ipk
           if-no-files-found: error
           retention-days: 30
