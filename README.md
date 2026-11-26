@@ -1,6 +1,6 @@
 # Ashika Live TV for LG webOS
 
-Version **3.0.0** — expanded TV app project.
+Version **4.0.0** — expanded TV app project.
 
 ## Features
 - Multiple saved M3U/M3U8 playlists with add, open, refresh and delete controls
@@ -13,6 +13,11 @@ Version **3.0.0** — expanded TV app project.
 - Remote-friendly focus navigation and large TV layout
 - Playback error status and optional next-channel fallback
 - Local settings and playlist persistence
+- Recently watched channels and quick channel surfing with Page Up / Page Down
+- HLS quality selection, audio-track selection and subtitle-track selection (when provided by stream)
+- Video Fit / Fill toggle
+- JSON backup and restore for playlists, favourites, history and settings
+- Playlist sorting by name
 - Reproducible IPK packaging and GitHub Actions artifact
 
 ## Build locally
