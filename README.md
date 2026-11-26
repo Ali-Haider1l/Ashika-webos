@@ -1,13 +1,14 @@
 # Ashika Live TV — Ultimate Edition
 
-**Version 6.2.0 · LG webOS**
+**Version 6.3.0 · LG webOS**
 
 ## Features
 - Multiple M3U/M3U8 playlists with add, open, rename, remove, explicit Save All, local file import, refresh and persistent on-device library
 - Channel search, category groups, favourites, recently watched, A–Z / Z–A sorting
 - HLS and MPEG-DASH playback, native media fallback
 - HLS quality, audio and subtitle track selection when exposed by the stream
-- Automatic reconnect with bounded exponential backoff and optional next-channel fallback
+- Automatic reconnect with bounded exponential backoff, HLS decoder/network recovery, DASH error recovery and optional next-channel fallback
+- Saved XMLTV/EPG cache for offline viewing of previously loaded programme data; guide refreshes while open
 - XMLTV / EPG guide with current/next programme display and live progress bar
 - Channel information panel with TVG ID, group, stream host and source URL
 - Network online/offline indicator, video resolution and expanded device diagnostics
