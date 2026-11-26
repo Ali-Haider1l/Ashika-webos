@@ -4,17 +4,20 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP_ID="com.ashika.livetv.webos"
 VERSION="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["version"])' "$ROOT/appinfo.json")"
+TITLE="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["title"])' "$ROOT/appinfo.json")"
+VENDOR="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["vendor"])' "$ROOT/appinfo.json")"
 WORK="$ROOT/build/ipk-root"
 OUT="$ROOT/dist"
 APP_DIR="$WORK/usr/palm/applications/$APP_ID"
+PKG_META_DIR="$WORK/usr/palm/packages/$APP_ID"
 
 rm -rf "$ROOT/build" "$OUT"
-mkdir -p "$APP_DIR" "$OUT" "$ROOT/build/control"
+mkdir -p "$APP_DIR" "$PKG_META_DIR" "$OUT" "$ROOT/build/control"
 
-# Package only the files required at runtime.
+# Copy only the runtime application files.
 cp "$ROOT/appinfo.json" "$ROOT/index.html" "$ROOT/style.css" "$ROOT/app.js" "$APP_DIR/"
 
-# Generate a compact 256x256 indexed-colour PNG icon (two colours).
+# Generate a compact 256x256 indexed-colour PNG icon.
 python3 - "$APP_DIR/icon.png" <<'PY'
 import struct, zlib, sys
 w = h = 256
@@ -39,6 +42,24 @@ with open(sys.argv[1], "wb") as f:
     f.write(png)
 PY
 
+# webOS requires packageinfo.json in usr/palm/packages/<app-id>.
+python3 - "$PKG_META_DIR/packageinfo.json" "$APP_ID" "$VERSION" "$TITLE" "$VENDOR" <<'PY'
+import json, sys
+path, app_id, version, title, vendor = sys.argv[1:]
+info = {
+    "app": app_id,
+    "id": app_id,
+    "loc_name": title,
+    "package_format_version": 2,
+    "vendor": vendor,
+    "version": version,
+    "services": []
+}
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(info, f, ensure_ascii=False, indent=2)
+    f.write("\n")
+PY
+
 cat > "$ROOT/build/control/control" <<EOF
 Package: $APP_ID
 Version: $VERSION
@@ -47,18 +68,47 @@ Priority: optional
 Architecture: all
 Maintainer: Ashika
 Description: Ashika Live TV webOS application
+webOS-Package-Format-Version: 2
 EOF
 
 printf '2.0\n' > "$ROOT/build/debian-binary"
-tar -cf - -C "$ROOT/build/control" . | gzip -9n > "$ROOT/build/control.tar.gz"
-tar -cf - -C "$WORK" . | gzip -9n > "$ROOT/build/data.tar.gz"
-(
-  cd "$ROOT/build"
-  ar r "$OUT/${APP_ID}_${VERSION}_all.ipk" debian-binary control.tar.gz data.tar.gz
-)
+
+# Use root ownership, stable GNU tar format and deterministic gzip headers.
+tar --format=ustar --owner=0 --group=0 --numeric-owner -cf - -C "$ROOT/build/control" control | gzip -9n > "$ROOT/build/control.tar.gz"
+tar --format=ustar --owner=0 --group=0 --numeric-owner -cf - -C "$WORK" usr | gzip -9n > "$ROOT/build/data.tar.gz"
+
+# Build an IPK ar container with bare member names. GNU ar appends '/' to
+# short member names; webOS appInstallService expects the exact bare names.
+python3 - "$ROOT/build" "$OUT/${APP_ID}_${VERSION}_all.ipk" <<'PY'
+import os, sys
+root, output = sys.argv[1:]
+members = ["debian-binary", "control.tar.gz", "data.tar.gz"]
+with open(output, "wb") as out:
+    out.write(b"!<arch>\n")
+    for name in members:
+        data_path = os.path.join(root, name)
+        with open(data_path, "rb") as f:
+            payload = f.read()
+        header = (
+            name.encode("ascii").ljust(16, b" ") +
+            b"0".ljust(12, b" ") +
+            b"0".ljust(6, b" ") +
+            b"0".ljust(6, b" ") +
+            b"100644".ljust(8, b" ") +
+            str(len(payload)).encode("ascii").ljust(10, b" ") +
+            b"`\n"
+        )
+        if len(header) != 60:
+            raise SystemExit("Invalid ar header for " + name)
+        out.write(header)
+        out.write(payload)
+        if len(payload) % 2:
+            out.write(b"\n")
+PY
 
 PKG="$OUT/${APP_ID}_${VERSION}_all.ipk"
 SIZE_BYTES="$(wc -c < "$PKG" | tr -d ' ')"
 echo "Built: $PKG"
 echo "IPK size: $SIZE_BYTES bytes ($(awk -v n="$SIZE_BYTES" 'BEGIN {printf "%.2f MiB", n/1048576}'))"
-echo "No artificial package-size limit is applied."
+echo "Package metadata: $PKG_META_DIR/packageinfo.json"
+echo "IPK uses bare ar member names and includes webOS packageinfo.json."
