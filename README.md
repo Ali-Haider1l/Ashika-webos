@@ -1,6 +1,6 @@
 # Ashika Live TV — Ultimate Edition
 
-**Version 6.4.0 · LG webOS**
+**Version 7.0.0 · LG webOS**
 
 ## Features
 - Built-in Bangladesh IPTV playlist (auto-added to the playlist library on first launch)
@@ -21,6 +21,9 @@
 - Persistent local settings with legacy storage migration
 
 ## Package size and build
+- Runtime JavaScript is transpiled for Chromium 53 (webOS TV 4.x), including async/await and modern syntax.
+- Layout uses a legacy flexbox fallback so the channel panel and settings remain visible on older LG TVs.
+- Playlist startup selects the built-in Bangladesh IPTV list when no valid saved list exists; video playback stays inline until a channel is selected.
 - The IPK build uses a compact indexed-colour app icon and maximum gzip compression.
 - GitHub Actions checks package contents and reports the actual IPK size; there is no artificial size cap.
 
