@@ -1,6 +1,8 @@
 name: Build Ashika Live TV IPK
 on:
   push:
+    branches: [main, "fix/**"]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 permissions:
