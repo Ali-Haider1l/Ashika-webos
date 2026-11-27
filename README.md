@@ -1,6 +1,6 @@
 # Ashika Live TV — Ultimate Edition
 
-**Version 7.0.10 · LG webOS**
+**Version 7.0.12 · LG webOS**
 
 ## Features
 - Built-in Bangladesh IPTV, FreeHunter HDTV and Toffee BD playlists (auto-added to the playlist library on first launch)
