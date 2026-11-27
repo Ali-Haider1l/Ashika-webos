@@ -70,6 +70,7 @@ jobs:
                   "usr/palm/applications/com.ashika.livetv.webos/app.js",
                   "usr/palm/applications/com.ashika.livetv.webos/style.css",
                   "usr/palm/applications/com.ashika.livetv.webos/stream-refresh.js",
+                  "usr/palm/applications/com.ashika.livetv.webos/features.js",
                   "usr/palm/packages/com.ashika.livetv.webos/packageinfo.json",
               ]
               missing = [name for name in required if name not in names]
