@@ -18,10 +18,10 @@ function saveCustomChannels(){
 }
 function save(){try{localStorage.setItem(STORE,JSON.stringify({playlists,activePlaylistId,settings,favourites:getFavourites(),recent:recent}));}catch(e){$("playback-status").textContent="Storage is full. Remove an unused playlist.";}}
 function getFavourites(){return favourites;}
-function remember(c){const k=favKey(c);recent=[k].concat(recent.filter(x=>x!==k)).slice(0,30);try{localStorage.setItem(RECENT_STORE,JSON.stringify(recent));}catch(e){}}
+function remember(c){const k=favKey(c);recent=[k].concat(recent.filter(x=>x!==k)).slice(0,30);try{localStorage.setItem(RECENT_STORE,JSON.stringify(recent));}catch(e){}window.dispatchEvent(new Event("ashika-library-changed"));}
 function favKey(c){return (c.tvgId||"")+"|"+c.url;}
 function isFav(c){return favouriteSet.has(favKey(c));}
-function toggleFav(c){const k=favKey(c);if(favouriteSet.has(k)){favouriteSet.delete(k);favourites=favourites.filter(x=>x!==k);}else{favouriteSet.add(k);favourites.push(k);}save();render();}
+function toggleFav(c){const k=favKey(c);if(favouriteSet.has(k)){favouriteSet.delete(k);favourites=favourites.filter(x=>x!==k);}else{favouriteSet.add(k);favourites.push(k);}save();render();window.dispatchEvent(new Event("ashika-library-changed"));}
 function stopEngines(){if(nativeFallbackTimer){clearTimeout(nativeFallbackTimer);nativeFallbackTimer=null;}if(retryTimer){clearTimeout(retryTimer);retryTimer=null;}if(hls){try{hls.destroy();}catch(e){}hls=null;}if(dash){try{dash.reset();}catch(e){}dash=null;}try{video.pause();}catch(e){}video.removeAttribute("src");try{video.load();}catch(e){}}
 function setStatus(s){$("playback-status").textContent=s||"";}
 function scheduleRecovery(index,reason){if(!settings.autoRetry||index===null||index<0||retryCount>=Math.max(0,Number(settings.maxRetries)||0)){setStatus(reason||"Playback failed. Retry manually or choose another channel.");return;}const attempt=++retryCount;setStatus("Connection lost. Reconnecting ("+attempt+"/"+settings.maxRetries+")…");if(retryTimer)clearTimeout(retryTimer);retryTimer=setTimeout(()=>{retryTimer=null;play(index,true);},Math.min(12000,1500*Math.pow(2,attempt-1)));}
