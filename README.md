@@ -1,6 +1,6 @@
 # Ashika Live TV — Ultimate Edition
 
-**Version 7.0.13 · LG webOS**
+**Version 8.0.0 · LG webOS**
 
 ## Features
 - Built-in Bangladesh IPTV, FreeHunter HDTV and Toffee BD playlists (auto-added to the playlist library on first launch)
@@ -41,3 +41,11 @@ The IPK should be generated under `dist/`. GitHub Actions can also build it from
 - PIN protection is a basic local convenience feature, not secure access control; the PIN is stored in browser local storage and should not be used for sensitive content.
 - Playback depends on TV model, webOS version, codecs, network, provider and stream availability.
 - Use only streams and playlists you are authorized to access.
+
+
+## Android parity update — 8.0.0
+- Added TV-remote friendly Tools & More hub: smart channel finder, stream health, local watch statistics, match center, family profiles, QR pairing, admin channel management, sports shortcuts, language selection and About/contact.
+- Added custom channel storage, bulk playlist import and Android companion JSON channel sync.
+- Added an in-app mini-player mode for webOS.
+- Existing playlist, playback, EPG, subtitle/audio/quality, reconnect, server diagnostics, parental PIN and backup features are retained.
+- Google/Firebase account sync is not enabled in this webOS build because the Android repository has no webOS Firebase web-client configuration. Local profiles and companion sync are provided instead.

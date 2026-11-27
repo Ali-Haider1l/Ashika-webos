@@ -2,11 +2,20 @@
 "use strict";
 const $=id=>document.getElementById(id),video=$("player");
 const STORE="ashika.live.tv.v4",LEGACY_STORE="ashika.live.tv.v3",RECENT_STORE="ashika.live.tv.recent.v1";
-let nativeFallbackTimer=null,playlists=[],channels=[],activePlaylistId=null,activeGroup="All",activeChannel=null,filter="all",visibleLimit=120,hls=null,dash=null,epg=[],epgByChannel=Object.create(null),recent=[],favourites=[],favouriteSet=new Set(),searchTimer=null,hlsMediaRecovered=false,epgLoadedAt=0,settings={refresh:0,epgUrl:"",autoplayNext:false,autoRetry:true,maxRetries:3,parentalPin:"",protectedGroup:""},refreshTimer=null,retryTimer=null,retryCount=0,sleepTimer=null;
+let nativeFallbackTimer=null,customChannels=[],playlists=[],channels=[],activePlaylistId=null,activeGroup="All",activeChannel=null,filter="all",visibleLimit=120,hls=null,dash=null,epg=[],epgByChannel=Object.create(null),recent=[],favourites=[],favouriteSet=new Set(),searchTimer=null,hlsMediaRecovered=false,epgLoadedAt=0,settings={refresh:0,epgUrl:"",autoplayNext:false,autoRetry:true,maxRetries:3,parentalPin:"",protectedGroup:""},refreshTimer=null,retryTimer=null,retryCount=0,sleepTimer=null;
 const sample="#EXTM3U\n#EXTINF:-1 tvg-id=\"sample-news\" group-title=\"News\",Sample News\nhttps://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8\n#EXTINF:-1 tvg-id=\"sample-ent\" group-title=\"Entertainment\",Sample Entertainment\nhttps://test-streams.mux.dev/test_001/stream.m3u8";
 function id(){return "p"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function parseM3U(raw){const lines=raw.replace(/^\uFEFF/,"").split(/\r?\n/),out=[];let meta=null;for(const line0 of lines){const line=line0.trim();if(!line)continue;if(line.startsWith("#EXTINF")){const comma=line.indexOf(","),attrs=comma>=0?line.slice(0,comma):line,title=comma>=0?line.slice(comma+1).trim():"Untitled channel";const attr=k=>{const m=attrs.match(new RegExp(k+'="([^"]*)"' ,"i"));return m?m[1]:"";};meta={title:title||"Untitled channel",group:attr("group-title")||"Other",logo:attr("tvg-logo"),tvgId:attr("tvg-id"),tvgName:attr("tvg-name")};}else if(!line.startsWith("#")&&meta){out.push({title:meta.title,searchTitle:meta.title.toLowerCase(),group:meta.group,logo:meta.logo,tvgId:meta.tvgId,tvgName:meta.tvgName,url:line});meta=null;}}return out;}
+function appendCustomChannels(){
+ customChannels.forEach(function(c){
+  if(!c||!c.url||channels.some(function(x){return x.url===c.url;}))return;
+  channels.push({title:c.title||"Custom Channel",searchTitle:String(c.title||"Custom Channel").toLowerCase(),group:c.group||"Custom",logo:c.logo||"",tvgId:c.tvgId||"",url:c.url,source:"manual"});
+ });
+}
+function saveCustomChannels(){
+ try{localStorage.setItem("ashika.tv.custom.channels.v1",JSON.stringify(customChannels));}catch(e){}
+}
 function save(){try{localStorage.setItem(STORE,JSON.stringify({playlists,activePlaylistId,settings,favourites:getFavourites(),recent:recent}));}catch(e){$("playback-status").textContent="Storage is full. Remove an unused playlist.";}}
 function getFavourites(){return favourites;}
 function remember(c){const k=favKey(c);recent=[k].concat(recent.filter(x=>x!==k)).slice(0,30);try{localStorage.setItem(RECENT_STORE,JSON.stringify(recent));}catch(e){}}
@@ -44,8 +53,8 @@ function render(){
  $("footer-playlist").textContent=(activePlaylist()?activePlaylist().name:"")||"No playlist selected";
  $("fav-current").textContent=current()&&favouriteSet.has(favKey(current()))?"★ Favourited":"☆ Favourite";
 }
-function loadPlaylist(p){activePlaylistId=p.id;channels=parseM3U(p.content||"");activeChannel=null;activeGroup="All";filter="all";visibleLimit=120;$("search").value="";save();render();$("current-title").textContent="No channel selected";$("current-group").textContent="Choose a channel from the list";$("player-placeholder").classList.remove("hidden");}
-async function refreshOne(p,silent){if(!p.url)return false;try{const r=await fetch(p.url,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);const content=await r.text(),parsed=parseM3U(content);if(!parsed.length)throw Error("Invalid playlist");p.content=content;p.updated=Date.now();if(p.id===activePlaylistId){channels=parsed;visibleLimit=120;render();}return true;}catch(e){if(!silent)setStatus("Playlist refresh failed: "+e.message);return false;}}
+function loadPlaylist(p){activePlaylistId=p.id;channels=parseM3U(p.content||"");appendCustomChannels();activeChannel=null;activeGroup="All";filter="all";visibleLimit=120;$("search").value="";save();render();$("current-title").textContent="No channel selected";$("current-group").textContent="Choose a channel from the list";$("player-placeholder").classList.remove("hidden");}
+async function refreshOne(p,silent){if(!p.url)return false;try{const r=await fetch(p.url,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);const content=await r.text(),parsed=parseM3U(content);if(!parsed.length)throw Error("Invalid playlist");p.content=content;p.updated=Date.now();if(p.id===activePlaylistId){channels=parsed;appendCustomChannels();visibleLimit=120;render();}return true;}catch(e){if(!silent)setStatus("Playlist refresh failed: "+e.message);return false;}}
 async function refreshAll(silent){let ok=0;for(const p of playlists)if(p.url&&await refreshOne(p,true))ok++;if(!silent)setStatus(ok?"Updated "+ok+" playlist(s).":"No online playlists could be refreshed.");save();}
 function scheduleRefresh(){if(refreshTimer)clearInterval(refreshTimer);refreshTimer=null;if(settings.refresh>0)refreshTimer=setInterval(()=>refreshAll(true),settings.refresh*60000);}
 const SERVER_LOOKUP_ENDPOINT="https://dokoplay.xyz/server_lookup.php";
@@ -332,14 +341,27 @@ function ensureDefaultPlaylist(){
   Promise.all(pending.map(function(p){return refreshOne(p,true).then(function(ok){return {playlist:p,ok:ok};});})).then(function(results){
    var loaded=results.filter(function(x){return x.ok;});
    var active=activePlaylist();
-   if(active&&parseM3U(active.content||"").length){channels=parseM3U(active.content);render();}
-   else if(loaded.length){activePlaylistId=loaded[0].playlist.id;channels=parseM3U(loaded[0].playlist.content);activeChannel=null;render();}
+   if(active&&parseM3U(active.content||"").length){channels=parseM3U(active.content);appendCustomChannels();render();}
+   else if(loaded.length){activePlaylistId=loaded[0].playlist.id;channels=parseM3U(loaded[0].playlist.content);appendCustomChannels();activeChannel=null;render();}
    save();
    var count=loaded.length;
    setStatus(count?"Loaded "+count+" default playlist source(s). Open Manage Playlists to switch sources.":"Playlists added, but could not refresh. Check internet/CORS and use Refresh.");
   });
- }else if(selected&&parseM3U(selected.content||"").length){channels=parseM3U(selected.content);render();}
+ }else if(selected&&parseM3U(selected.content||"").length){channels=parseM3U(selected.content);appendCustomChannels();render();}
 }
-function init(){try{let raw=localStorage.getItem(STORE);if(!raw){raw=localStorage.getItem(LEGACY_STORE);if(raw)localStorage.setItem(STORE,raw);}const s=JSON.parse(raw||"{}");playlists=Array.isArray(s.playlists)?s.playlists:[];activePlaylistId=s.activePlaylistId||null;settings=Object.assign(settings,s.settings||{});recent=Array.isArray(s.recent)?s.recent:[];try{const savedRecent=JSON.parse(localStorage.getItem(RECENT_STORE)||"null");if(Array.isArray(savedRecent))recent=savedRecent;}catch(ignore){}favourites=Array.isArray(s.favourites)?s.favourites:[];favouriteSet=new Set(favourites);}catch(e){}$("refresh-interval").value=String(settings.refresh||0);$("epg-url").value=settings.epgUrl||"";$("autoplay-next").checked=!!settings.autoplayNext;$("auto-retry").checked=settings.autoRetry!==false;$("max-retries").value=String((settings.maxRetries===undefined?3:settings.maxRetries));$("parental-pin").value=settings.parentalPin||"";$("protected-group").value=settings.protectedGroup||"";bind();window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")save();});const p=activePlaylist();if(p){channels=parseM3U(p.content||"");}render();scheduleRefresh();tick();ensureDefaultPlaylist();setInterval(tick,30000);}
+function init(){try{let raw=localStorage.getItem(STORE);if(!raw){raw=localStorage.getItem(LEGACY_STORE);if(raw)localStorage.setItem(STORE,raw);}const s=JSON.parse(raw||"{}");playlists=Array.isArray(s.playlists)?s.playlists:[];activePlaylistId=s.activePlaylistId||null;settings=Object.assign(settings,s.settings||{});recent=Array.isArray(s.recent)?s.recent:[];try{const savedRecent=JSON.parse(localStorage.getItem(RECENT_STORE)||"null");if(Array.isArray(savedRecent))recent=savedRecent;}catch(ignore){}favourites=Array.isArray(s.favourites)?s.favourites:[];favouriteSet=new Set(favourites);}catch(e){}$("refresh-interval").value=String(settings.refresh||0);$("epg-url").value=settings.epgUrl||"";$("autoplay-next").checked=!!settings.autoplayNext;$("auto-retry").checked=settings.autoRetry!==false;$("max-retries").value=String((settings.maxRetries===undefined?3:settings.maxRetries));$("parental-pin").value=settings.parentalPin||"";$("protected-group").value=settings.protectedGroup||"";bind();window.addEventListener("pagehide",save);document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")save();});try{customChannels=JSON.parse(localStorage.getItem("ashika.tv.custom.channels.v1")||"[]");if(!Array.isArray(customChannels))customChannels=[];}catch(e){customChannels=[];}const p=activePlaylist();if(p){channels=parseM3U(p.content||"");appendCustomChannels();}render();scheduleRefresh();tick();ensureDefaultPlaylist();setInterval(tick,30000);}
+window.AshikaTV={
+ getSnapshot:function(){return {channels:channels.slice(),playlists:playlists.slice(),favorites:favourites.slice(),recent:recent.slice(),current:current(),settings:Object.assign({},settings)};},
+ getVideo:function(){return video;},
+ setStatus:function(message){setStatus(message);},
+ playChannel:function(url){var i=channels.findIndex(function(c){return c.url===url;});if(i>=0){play(i);return true;}return false;},
+ setLibraryState:function(favs,recents){favourites=Array.isArray(favs)?favs.slice():[];favouriteSet=new Set(favourites);recent=Array.isArray(recents)?recents.slice():[];save();render();},
+ toggleFavorite:function(url){var c=channels.find(function(x){return x.url===url;});if(c)toggleFav(c);},
+ addCustomChannel:function(channel){if(!channel||!/^https?:\/\//i.test(String(channel.url||"")))return false;var item={title:String(channel.title||"Custom Channel").trim(),url:String(channel.url).trim(),group:String(channel.group||"Custom").trim(),logo:String(channel.logo||"").trim(),tvgId:String(channel.tvgId||"").trim()};if(!item.title)return false;customChannels=customChannels.filter(function(x){return x.url!==item.url;});customChannels.push(item);saveCustomChannels();channels=activePlaylist()?parseM3U(activePlaylist().content||""):[];appendCustomChannels();render();return true;},
+ removeCustomChannel:function(url){customChannels=customChannels.filter(function(x){return x.url!==url;});saveCustomChannels();channels=activePlaylist()?parseM3U(activePlaylist().content||""):[];appendCustomChannels();render();},
+ getCustomChannels:function(){return customChannels.slice();},
+ addPlaylist:function(name,url){var clean=String(url||"").trim();if(!/^https?:\/\//i.test(clean))return Promise.reject(new Error("Enter a valid HTTP/HTTPS playlist URL."));return fetch(clean,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.text();}).then(function(content){if(!parseM3U(content).length)throw new Error("No playable channels found.");var p={id:id(),name:String(name||"Playlist "+(playlists.length+1)),url:clean,content:content,updated:Date.now()};playlists.push(p);save();if(!activePlaylist())loadPlaylist(p);return parseM3U(content).length;});},
+ importCompanion:function(endpoint){return fetch(String(endpoint||"").trim(),{cache:"no-store",headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(function(data){if(!data||!Array.isArray(data.channels))throw new Error("Companion JSON must contain a channels array.");var count=0;data.channels.forEach(function(c){if(c&&/^https?:\/\//i.test(String(c.url||""))&&c.name){if(window.AshikaTV.addCustomChannel({title:c.name,url:c.url,group:c.group||"Other",logo:c.logo||""}))count++;}});return count;});}
+};
 try{init();}catch(err){try{setStatus("Application startup error: "+(err&&err.message?err.message:String(err)));}catch(ignore){}if(window.console&&console.error)console.error("Ashika Live TV startup error",err);}
 })();

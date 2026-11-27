@@ -168,3 +168,23 @@ dialog{width:92vw;max-width:540px}
 @media(max-width:700px){.sidebar{width:100%;height:auto;min-height:320px}.channel-info strong{font-size:15px}.channel-info small{font-size:12px}}
 
 .server-lookup .diagnostics-output{max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin-top:10px;padding:10px;border-radius:8px;background:#080d18;color:#d9e5f7;font-size:12px;line-height:1.5}.server-lookup button:disabled{opacity:.55;pointer-events:none}
+
+/* Ashika TV Android feature parity tools */
+.tools-dialog{width:1080px;max-width:94vw;max-height:90vh;overflow:auto}
+.feature-tabs{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 18px}
+.feature-tabs button{background:#202b42;border:1px solid #40516c;color:#dce4f1;border-radius:8px;padding:10px 13px;font-size:12px}
+.feature-tabs button.active{background:#8055d6;border-color:#b69cff;color:#fff}
+.feature-view{display:none;min-height:240px;padding:10px 2px}
+.feature-view.active{display:block}
+.feature-view h3{color:#c4aaff;margin:5px 0 10px}
+.feature-results{max-height:340px;overflow:auto;margin-top:14px}
+.feature-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;margin:6px 0;background:#202b42;border:1px solid #35445f;border-radius:9px}
+.feature-row strong{display:block;font-size:13px}.feature-row small{color:#a8b5c9;font-size:11px}
+.feature-row button{padding:7px 10px}
+.pair-code{display:block;text-align:center;font-size:36px;letter-spacing:8px;color:#d5c4ff;margin:18px}
+.pair-qr{width:190px;min-height:190px;margin:0 auto;padding:10px;background:#fff;border-radius:10px;text-align:center}
+.pair-qr img,.pair-qr canvas{max-width:170px}
+#feature-admin [hidden]{display:none!important}
+#mini-player-btn{white-space:nowrap}
+#player-wrap.mini-player{position:fixed!important;right:22px;bottom:22px;width:480px;height:270px;z-index:9999;border:2px solid #b69cff;box-shadow:0 8px 36px #000b}
+@media(max-width:900px){.tools-dialog{width:94vw}.feature-tabs button{padding:8px;font-size:10px}#player-wrap.mini-player{width:42vw;height:24vw}}
