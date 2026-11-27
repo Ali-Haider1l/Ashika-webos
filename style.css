@@ -166,3 +166,5 @@ dialog{width:92vw;max-width:540px}
 @media(max-width:1400px){.sidebar{flex-basis:410px;-webkit-flex-basis:410px;width:410px}}
 @media(max-width:1000px){.sidebar{flex-basis:380px;-webkit-flex-basis:380px;width:380px}}
 @media(max-width:700px){.sidebar{width:100%;height:auto;min-height:320px}.channel-info strong{font-size:15px}.channel-info small{font-size:12px}}
+
+.server-lookup .diagnostics-output{max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin-top:10px;padding:10px;border-radius:8px;background:#080d18;color:#d9e5f7;font-size:12px;line-height:1.5}.server-lookup button:disabled{opacity:.55;pointer-events:none}
