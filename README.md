@@ -1,6 +1,6 @@
 # Ashika Live TV — Ultimate Edition
 
-**Version 7.0.12 · LG webOS**
+**Version 7.0.13 · LG webOS**
 
 ## Features
 - Built-in Bangladesh IPTV, FreeHunter HDTV and Toffee BD playlists (auto-added to the playlist library on first launch)
@@ -13,6 +13,7 @@
 - XMLTV / EPG guide with current/next programme display and live progress bar
 - Channel information panel with TVG ID, group, stream host and source URL
 - Network online/offline indicator, video resolution and expanded device diagnostics
+- Server endpoint diagnostics for DokoPlay, NewEmbedPlay and RTS TV, DokoPlay lookup response parsing, and muted playback probes for up to five returned/current playlist streams
 - Parental PIN protection for a configured M3U group (local-only; not encrypted)
 - Advanced player controls: 10-second skip back/forward, playback speed (0.5×–2×), volume presets, video Fit/Fill, fullscreen, mute/unmute, retry, stop, next/previous channel and Magic Remote shortcuts (F/M, arrows, Channel Up/Down, Space)
 - Sleep timer with 15, 30, 45, 60, 90 and 120 minute auto-stop options
